@@ -37,7 +37,7 @@ GEM
       faraday (> 0.8, < 2.0)
 
 PLATFORMS
-  x86_64-darwin-21
+  ruby
 
 DEPENDENCIES
   octokit
