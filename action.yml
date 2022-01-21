@@ -1,0 +1,82 @@
+name: Uploader
+description: "Adding PDF/JATS/Crossref files to a paper's topic branch"
+inputs:
+  papers_repo:
+    description: The repository containing the journal's published and submitted papers
+    required: true
+  issue_id:
+    description: The issue number of the submission
+    required: true
+  branch_prefix:
+    description: The prefix to add to the name of all branches
+    required: false
+    default: ""
+  pdf_path:
+    description: The path to the PDF file
+    required: false
+  jats_path:
+    description: The path to the JATS file
+    required: false
+  crossref_path:
+    description: The path to the Crossref XML file
+    required: false
+  bot_token:
+    description: The access token to be used to upload files
+    required: false
+outputs:
+  pdf_html_url:
+    description: "HTML URL for the uploaded file"
+    value: ${{ steps.uploader.outputs.pdf_html_url }}
+  pdf_download_url:
+    description: "Download URL for the uploaded file"
+    value: ${{ steps.uploader.outputs.pdf_download_url }}
+  jats_html_url:
+    description: "HTML URL for the uploaded JATS file"
+    value: ${{ steps.uploader.outputs.jats_html_url }}
+  jats_download_url:
+    description: "Download URL for the uploaded JATS file"
+    value: ${{ steps.uploader.outputs.jats_download_url }}
+  crossref_html_url:
+    description: "HTML URL for the uploaded Crossref XML file"
+    value: ${{ steps.uploader.outputs.crossref_html_url }}
+  crossref_download_url:
+    description: "Download URL for the uploaded Crossref XML file"
+    value: ${{ steps.uploader.outputs.crossref_download_url }}
+runs:
+  using: "composite"
+  steps:
+    - name: Install Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 3.1.0
+        bundler-cache: true
+        cache-version: upload-files
+        bundler: Gemfile.lock
+        working-directory: ${{ github.action_path }}
+    - name: Add files to a fresh paper branch
+      id: uploader
+      shell: bash
+      env:
+        PAPERS_REPO: ${{ inputs.papers_repo }}
+        BRANCH_PREFIX: ${{ inputs.branch_prefix }}
+        ISSUE_ID: ${{ inputs.issue_id }}
+        PDF_PATH: ${{ inputs.pdf_path }}
+        JATS_PATH: ${{ inputs.jats_path }}
+        CROSSREF_PATH: ${{ inputs.crossref_path }}
+        BOT_TOKEN: ${{ inputs.bot_token }}
+        BUNDLE_GEMFILE: ${{ github.action_path }}/Gemfile
+      run: |
+        bundle exec ruby ${{ github.action_path }}/create_branch.rb
+    - name: Print results
+      shell: bash
+      run: |
+        echo "Paper HTML URL: ${{ steps.uploader.outputs.pdf_html_url }}"
+        echo "Paper download URL: ${{ steps.uploader.outputs.pdf_download_url }}"
+        echo "Crossref XML file HTML URL: ${{ steps.uploader.outputs.crossref_html_url }}"
+        echo "Crossref XML file download URL: ${{ steps.uploader.outputs.crossref_download_url }}"
+        echo "JATS file HTML URL: ${{ steps.uploader.outputs.jats_html_url }}"
+        echo "JATS file download URL: ${{ steps.uploader.outputs.jats_download_url }}"
+
+branding:
+  icon: upload
+  color: green
