@@ -31,20 +31,14 @@ branch = branch_prefix.empty? ? id.to_s : "#{branch_prefix}.#{id}"
 ref = "heads/#{branch}"
 
 begin
-  # Delete old files
-  files = github_client.contents(papers_repo, path: branch, ref: ref)
-  files.each do |file|
-    github_client.delete_contents(papers_repo, file.path, "Deleting #{file.name}", file.sha, branch: branch)
-  end
-  # Delete the old branch and create it again
-  github_client.delete_ref(papers_repo, "heads/#{branch}")
-  github_client.create_ref(papers_repo, "heads/#{branch}", get_main_ref(papers_repo))
-rescue Octokit::NotFound # If the branch doesn't exist, or there aren't any commits in the branch then create it!
-  begin
-    github_client.create_ref(papers_repo, "heads/#{branch}", get_main_ref(papers_repo))
-  rescue Octokit::UnprocessableEntity
-    # If the branch already exists move on...
-  end
+  # Check branch existence
+  github_client.ref(papers_repo, ref)
+  # Delete old branch and create it again
+  github_client.delete_ref(papers_repo, ref)
+  github_client.create_ref(papers_repo, ref, get_main_ref(papers_repo))
+rescue Octokit::NotFound
+  # Create branch if it doesn't exist
+  github_client.create_ref(papers_repo, ref, get_main_ref(papers_repo))
 end
 
 pdf_uploaded_path = "#{branch}/10.21105.#{branch}.pdf"
