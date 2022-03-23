@@ -46,7 +46,7 @@ jobs:
       GH_ACCESS_TOKEN: ${{ secrets.BOT_TOKEN }}
     steps:
       - name: Upload file to papers repo
-        uses: xuanxu/upload-metadata-action@main
+        uses: xuanxu/upload-files-action@main
         with:
           papers_repo: myorg/myjournal-papers
           branch_prefix: myjournal
