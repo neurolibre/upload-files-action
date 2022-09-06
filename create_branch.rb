@@ -79,4 +79,20 @@ if !jats_path.empty? && File.exist?(jats_path)
 
   system("echo '::set-output name=jats_html_url::#{jats_gh_response.content.html_url}'")
   system("echo '::set-output name=jats_download_url::#{jats_gh_response.content.download_url}'")
+
+  # Add JATS' media files if present
+  media_folder = File.join(File.dirname(jats_path), "media")
+  if Dir.exist?(media_folder)
+    media_files = Dir[File.join(media_folder, "*")]
+    media_files.each do |media_file|
+      media_file_name = File.basename(media_file)
+      media_file_uploaded_path = "#{branch}/media/#{media_file_name}"
+      github_client.create_contents(papers_repo,
+                                    media_file_uploaded_path,
+                                    "Adding media file: #{media_file_name}",
+                                    File.open(media_file).read,
+                                    branch: branch)
+    end
+  end
+
 end
