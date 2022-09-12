@@ -1,4 +1,5 @@
 require "octokit"
+require "pathname"
 
 def gh_token
   gh_token_from_env = ENV['BOT_TOKEN'].to_s.strip
@@ -83,9 +84,9 @@ if !jats_path.empty? && File.exist?(jats_path)
   # Add JATS' media files if present
   media_folder = File.join(File.dirname(jats_path), "media")
   if Dir.exist?(media_folder)
-    media_files = Dir[File.join(media_folder, "*")]
+    media_files = Dir[File.join(media_folder, "**/*.*")]
     media_files.each do |media_file|
-      media_file_name = File.basename(media_file)
+      media_file_name = Pathname(media_file).relative_path_from(media_folder).to_s
       media_file_uploaded_path = "#{branch}/media/#{media_file_name}"
       github_client.create_contents(papers_repo,
                                     media_file_uploaded_path,
