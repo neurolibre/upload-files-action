@@ -54,8 +54,8 @@ if !pdf_path.empty? && File.exist?(pdf_path)
                                               File.open("#{pdf_path.strip}").read,
                                               branch: branch)
 
-  system("echo '::set-output name=pdf_html_url::#{gh_response.content.html_url}'")
-  system("echo '::set-output name=pdf_download_url::#{gh_response.content.download_url}'")
+  system("echo 'pdf_html_url=#{gh_response.content.html_url}' >> $GITHUB_OUTPUT")
+  system("echo 'pdf_download_url=#{gh_response.content.download_url}' >> $GITHUB_OUTPUT")
 end
 
 # Add Crossref XML file if present
@@ -66,8 +66,8 @@ if !crossref_path.empty? && File.exist?(crossref_path)
                                               File.open("#{crossref_path.strip}").read,
                                               branch: branch)
 
-  system("echo '::set-output name=crossref_html_url::#{crossref_gh_response.content.html_url}'")
-  system("echo '::set-output name=crossref_download_url::#{crossref_gh_response.content.download_url}'")
+  system("echo 'crossref_html_url=#{crossref_gh_response.content.html_url}' >> $GITHUB_OUTPUT")
+  system("echo 'crossref_download_url=#{crossref_gh_response.content.download_url}' >> $GITHUB_OUTPUT")
 end
 
 # Add JATS file if present
@@ -78,8 +78,8 @@ if !jats_path.empty? && File.exist?(jats_path)
                                               File.open("#{jats_path.strip}").read,
                                               branch: branch)
 
-  system("echo '::set-output name=jats_html_url::#{jats_gh_response.content.html_url}'")
-  system("echo '::set-output name=jats_download_url::#{jats_gh_response.content.download_url}'")
+  system("echo 'jats_html_url=#{jats_gh_response.content.html_url}' >> $GITHUB_OUTPUT")
+  system("echo 'jats_download_url=#{jats_gh_response.content.download_url}' >> $GITHUB_OUTPUT")
 
   # Add JATS' media files if present
   media_folder = File.join(File.dirname(jats_path), "media")
