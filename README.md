@@ -1,4 +1,4 @@
-# Open Journals :: Upload files
+# NeuroLibre :: Upload files
 
 This action creates a topic branch for a paper in the corresponding Open Journal's papers repository and adds the paper files (pdf/jats/crossref xml) to it.
 
@@ -46,10 +46,10 @@ jobs:
       GH_ACCESS_TOKEN: ${{ secrets.BOT_TOKEN }}
     steps:
       - name: Upload file to papers repo
-        uses: xuanxu/upload-files-action@main
+        uses: neurolibre/upload-files-action@main
         with:
-          papers_repo: myorg/myjournal-papers
-          branch_prefix: myjournal
+          papers_repo: neurolibre/preprints
+          branch_prefix: neurolibre
           issue_id: ${{ github.event.inputs.issue_id }}
           pdf_path: docs/paper.pdf
           crossref_path: docs/paper.jats
