@@ -70,30 +70,29 @@ if !crossref_path.empty? && File.exist?(crossref_path)
   system("echo 'crossref_download_url=#{crossref_gh_response.content.download_url}' >> $GITHUB_OUTPUT")
 end
 
-# Add JATS file if present
+# Add all files in the JATS' directory if present
 if !jats_path.empty? && File.exist?(jats_path)
-  jats_gh_response = github_client.create_contents(papers_repo,
-                                              jats_uploaded_path,
-                                              "Creating 10.21105.#{branch}.jats",
-                                              File.open("#{jats_path.strip}").read,
-                                              branch: branch)
+  jats_files_folder = File.dirname(jats_path)
+  jats_files = Dir[File.join(jats_files_folder, "**/*.*")]
+  jats_files.each do |jats_file|
+      jats_file_name = Pathname(jats_file).relative_path_from(jats_files_folder).to_s
 
-  system("echo 'jats_html_url=#{jats_gh_response.content.html_url}' >> $GITHUB_OUTPUT")
-  system("echo 'jats_download_url=#{jats_gh_response.content.download_url}' >> $GITHUB_OUTPUT")
+      if jats_file_name == "paper.jats"
+        commit_message = "Creating 10.21105.#{branch}.jats"
+        jats_file_uploaded_path = "#{branch}/paper.jats/10.21105.#{branch}.jats"
+      else
+        commit_message = "Adding JATS media file: #{jats_file_name}"
+        jats_file_uploaded_path = "#{branch}/paper.jats/#{jats_file_name}"
+      end
 
-  # Add JATS' media files if present
-  media_folder = File.join(File.dirname(jats_path), "media")
-  if Dir.exist?(media_folder)
-    media_files = Dir[File.join(media_folder, "**/*.*")]
-    media_files.each do |media_file|
-      media_file_name = Pathname(media_file).relative_path_from(media_folder).to_s
-      media_file_uploaded_path = "#{branch}/media/#{media_file_name}"
-      github_client.create_contents(papers_repo,
-                                    media_file_uploaded_path,
-                                    "Adding media file: #{media_file_name}",
-                                    File.open(media_file).read,
-                                    branch: branch)
-    end
+      jats_gh_response = github_client.create_contents(papers_repo,
+                                                       jats_file_uploaded_path,
+                                                       commit_message,
+                                                       File.open(jats_file).read,
+                                                       branch: branch)
+      if jats_file_name == "paper.jats"
+        system("echo 'jats_html_url=#{jats_gh_response.content.html_url}' >> $GITHUB_OUTPUT")
+        system("echo 'jats_download_url=#{jats_gh_response.content.download_url}' >> $GITHUB_OUTPUT")
+      end
   end
-
 end
