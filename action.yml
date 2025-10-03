@@ -16,7 +16,8 @@ inputs:
     required: false
   jats_path:
     description: The path to the JATS file
-    required: false
+    required: 
+    false
   crossref_path:
     description: The path to the Crossref XML file
     required: false
@@ -79,4 +80,4 @@ runs:
 
 branding:
   icon: upload
-  color: green
+  color: red
