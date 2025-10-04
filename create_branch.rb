@@ -26,10 +26,12 @@ jats_path = ENV["JATS_PATH"].to_s.strip
 crossref_path = ENV["CROSSREF_PATH"].to_s.strip
 papers_repo = ENV["PAPERS_REPO"]
 branch_prefix = ENV["BRANCH_PREFIX"]
+preprint_version = ENV["PREPRINT_VERSION"]
 
 id = "%05d" % issue_id
 branch = branch_prefix.empty? ? id.to_s : "#{branch_prefix}.#{id}"
-ref = "heads/#{branch}"
+ref = preprint_version == "v1" ? "heads/#{branch}" : "heads/#{branch}.#{preprint_version}"
+versioned_branch = preprint_version == "v1" ? branch : "#{branch}.#{preprint_version}"
 
 begin
   # Check branch existence
@@ -42,9 +44,9 @@ rescue Octokit::NotFound
   github_client.create_ref(papers_repo, ref, get_main_ref(papers_repo))
 end
 
-pdf_uploaded_path = "#{branch}/10.55458.#{branch}.pdf"
-jats_uploaded_path = "#{branch}/10.55458.#{branch}.jats"
-crossref_uploaded_path = "#{branch}/10.55458.#{branch}.crossref.xml"
+pdf_uploaded_path = "#{branch}/10.55458.#{versioned_branch}.pdf"
+jats_uploaded_path = "#{branch}/10.55458.#{versioned_branch}.jats"
+crossref_uploaded_path = "#{branch}/10.55458.#{versioned_branch}.crossref.xml"
 
 # Add PDF file if present
 if !pdf_path.empty? && File.exist?(pdf_path)
@@ -52,7 +54,7 @@ if !pdf_path.empty? && File.exist?(pdf_path)
                                               pdf_uploaded_path,
                                               "Creating 10.55458.#{branch}.pdf",
                                               File.open("#{pdf_path.strip}").read,
-                                              branch: branch)
+                                              branch: versioned_branch)
 
   system("echo 'pdf_html_url=#{gh_response.content.html_url}' >> $GITHUB_OUTPUT")
   system("echo 'pdf_download_url=#{gh_response.content.download_url}' >> $GITHUB_OUTPUT")
@@ -64,7 +66,7 @@ if !crossref_path.empty? && File.exist?(crossref_path)
                                               crossref_uploaded_path,
                                               "Creating 10.55458.#{branch}.crossref.xml",
                                               File.open("#{crossref_path.strip}").read,
-                                              branch: branch)
+                                              branch: versioned_branch)
 
   system("echo 'crossref_html_url=#{crossref_gh_response.content.html_url}' >> $GITHUB_OUTPUT")
   system("echo 'crossref_download_url=#{crossref_gh_response.content.download_url}' >> $GITHUB_OUTPUT")
@@ -79,7 +81,7 @@ if !jats_path.empty? && File.exist?(jats_path)
 
       if jats_file_name == "paper.jats"
         commit_message = "Creating 10.55458.#{branch}.jats"
-        jats_file_uploaded_path = "#{branch}/paper.jats/10.55458.#{branch}.jats"
+        jats_file_uploaded_path = "#{branch}/paper.jats/10.55458.#{versioned_branch}.jats"
       else
         commit_message = "Adding JATS media file: #{jats_file_name}"
         jats_file_uploaded_path = "#{branch}/paper.jats/#{jats_file_name}"
@@ -89,7 +91,7 @@ if !jats_path.empty? && File.exist?(jats_path)
                                                        jats_file_uploaded_path,
                                                        commit_message,
                                                        File.open(jats_file).read,
-                                                       branch: branch)
+                                                       branch: versioned_branch)
       if jats_file_name == "paper.jats"
         system("echo 'jats_html_url=#{jats_gh_response.content.html_url}' >> $GITHUB_OUTPUT")
         system("echo 'jats_download_url=#{jats_gh_response.content.download_url}' >> $GITHUB_OUTPUT")
