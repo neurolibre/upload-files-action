@@ -52,7 +52,7 @@ crossref_uploaded_path = "#{branch}/10.55458.#{versioned_branch}.crossref.xml"
 if !pdf_path.empty? && File.exist?(pdf_path)
   gh_response = github_client.create_contents(papers_repo,
                                               pdf_uploaded_path,
-                                              "Creating 10.55458.#{branch}.pdf",
+                                              "Creating 10.55458.#{versioned_branch}.pdf",
                                               File.open("#{pdf_path.strip}").read,
                                               branch: versioned_branch)
 
@@ -64,7 +64,7 @@ end
 if !crossref_path.empty? && File.exist?(crossref_path)
   crossref_gh_response = github_client.create_contents(papers_repo,
                                               crossref_uploaded_path,
-                                              "Creating 10.55458.#{branch}.crossref.xml",
+                                              "Creating 10.55458.#{versioned_branch}.crossref.xml",
                                               File.open("#{crossref_path.strip}").read,
                                               branch: versioned_branch)
 
@@ -80,7 +80,7 @@ if !jats_path.empty? && File.exist?(jats_path)
       jats_file_name = Pathname(jats_file).relative_path_from(jats_files_folder).to_s
 
       if jats_file_name == "paper.jats"
-        commit_message = "Creating 10.55458.#{branch}.jats"
+        commit_message = "Creating 10.55458.#{versioned_branch}.jats"
         jats_file_uploaded_path = "#{branch}/paper.jats/10.55458.#{versioned_branch}.jats"
       else
         commit_message = "Adding JATS media file: #{jats_file_name}"
